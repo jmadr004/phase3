@@ -23,8 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import java.util.Scanner;
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -107,7 +106,7 @@ public class DBproject{
 			    outputHeader = false;
 			}
 			for (int i=1; i<=numCol; ++i)
-				System.out.print (rs.getString (i) + "\t");
+				System.out.print (rs.getString (i) + "\t" );
 			System.out.println ();
 			++rowCount;
 		}//end while
@@ -169,7 +168,7 @@ public class DBproject{
 
 		int rowCount = 0;
 
-		//iterates through the result set and count number of results.
+		//iterates through the result set and count nuber of results.
 		if(rs.next()){
 			rowCount++;
 		}//end while
@@ -302,7 +301,7 @@ public class DBproject{
 	}//end readChoice
 
 	public static void AddPlane(DBproject esql) {//1
-        try{
+	try{
 		System.out.print("\tPlease Enter Aircraft Maker: ");
 		String maker = in.readLine();
 		System.out.print("\tPlease Enter Aircraft Model: ");
@@ -349,51 +348,9 @@ public class DBproject{
 	}catch(Exception e){
 		System.err.println (e.getMessage());
 	   }	
-
 	}
 
 	public static void AddPilot(DBproject esql) {//2
-        try{
-            String find_max = "SELECT MAX(P.ID) AS max_value FROM Pilot P;";
-            List<List<String>> rs = esql.executeQueryAndReturnResult(find_max);
-            int rowCount = rs.size();
-            int maxRecord = 0;
-            int i = 0;
-            int j = 0;
-            int numCol = rs.get(0).size();
-            System.out.println("\nRows for MAX query: " 
-                + rowCount + "\tColumns in each row: " + numCol + "\n");
-            System.out.println("\nPrinting returned values from query\n");
-            for(List<String> row : rs){
-                for(String s: row){
-                    System.out.println(s + "\t");
-                    maxRecord = Integer.parseInt(s);
-                }
-                System.out.println("\n");
-            }
-            
-            if(rowCount == 0){
-                String insert_pilot = "INSERT INTO Pilot(id, fullname, nationality) " 
-                            + "VALUES(0,\'john smith\',\'american\');";
-            String print_record = "SELECT * FROM Pilot P WHERE P.id = " + rowCount + ";";
-            int newRec = esql.executeQueryAndPrintResult(print_record);
-                
-            }
-            else{
-                System.out.println("\nTotal rows: " + rowCount + "\n");                
-                maxRecord++;
-                String insert_pilot = "INSERT INTO Pilot(id, fullname, nationality)" + 
-                    " VALUES("+ maxRecord + ", \'john  smith\',\'american\');";          
-                String print_record = "SELECT * FROM Pilot P WHERE P.id = " + maxRecord + ";";
-                esql.executeUpdate(insert_pilot);
-                int newRec = esql.executeQueryAndPrintResult(print_record);
-                System.out.println("Added record with id: " + maxRecord + "\t added " 
-                       + newRec + " total records\n");
-            }
-        }
-        catch(Exception e){
-            System.err.println(e.getMessage());
-        }
 	}
 
 	public static void AddFlight(DBproject esql) {//3
@@ -434,7 +391,8 @@ public class DBproject{
 		Info += "\'"+test+"\';";
 		String update_flight="INSERT INTO Flight (fnum, cost, num_sold, num_stops,"
 		+" actual_departure_date, actual_arrival_date, arrival_airport, departure_airport)"
-		+" VALUES  ("+test+", \'"+TCost+"\',\'"+NumSold+"\',\'"+NumStops+"\',\'"+ActDep+"\'," 			+" \'"+ActArv+"\',\'"+ArvAir+"\',\'"+DepAir+"\');";
+		+" VALUES  ("+test+", \'"+TCost+"\',\'"+NumSold+"\',\'"+NumStops+"\',\'"+ActDep+"\'," 			
+		+" \'"+ActArv+"\',\'"+ArvAir+"\',\'"+DepAir+"\');";
 		System.out.print("\tFlight Information entered: "+"\n");
 		esql.executeUpdate(update_flight);
 		esql.executeQueryAndPrintResult(Info);	
@@ -444,7 +402,8 @@ public class DBproject{
 		Info += "\'"+test+"\';";
 		String update_flight="INSERT INTO Flight (fnum, cost, num_sold, num_stops,"
 		+" actual_departure_date, actual_arrival_date, arrival_airport, departure_airport)"
-		+" VALUES  ("+test+", \'"+TCost+"\',\'"+NumSold+"\',\'"+NumStops+"\',\'"+ActDep+"\'," 			+" \'"+ActArv+"\',\'"+ArvAir+"\',\'"+DepAir+"\');";
+		+" VALUES  ("+test+", \'"+TCost+"\',\'"+NumSold+"\',\'"+NumStops+"\',\'"+ActDep+"\'," 			
+		+" \'"+ActArv+"\',\'"+ArvAir+"\',\'"+DepAir+"\');";
 		System.out.print("\tFlight Information entered: "+"\n");
 		esql.executeUpdate(update_flight);
 		esql.executeQueryAndPrintResult(Info);	 
@@ -453,7 +412,7 @@ public class DBproject{
 	}catch(Exception e){
 		System.err.println (e.getMessage());
 	   }
-
+	
 	}
 
 	public static void AddTechnician(DBproject esql) {//4
@@ -461,11 +420,90 @@ public class DBproject{
 
 	public static void BookFlight(DBproject esql) {//5
 		// Given a customer and a flight that he/she wants to book, add a reservation to the DB
+		//
+	try{ 
+			System.out.print("\tPlease Enter Customer Information: \n");	
+			System.out.print("\tPlease Enter Passenger ID: ");
+			String input1 = in.readLine();
+			System.out.print("\tPlease Enter Flight Number: ");
+			String input2 = in.readLine();
+			String find_res="SELECT R.rnum from Reservation R, Customer C, Flight F WHERE C.id=R.cid AND F.fnum=R.fid AND C.id=\'"+input1+"\' AND F.fnum=\'"+input2+"\';";
+			String find_stat="SELECT R.status from Reservation R, Customer C, Flight F WHERE C.id=R.cid AND F.fnum=R.fid AND C.id=\'"+input1+"\' AND F.fnum=\'"+input2+"\';";
+			int test=0;
+			List<List<String>> find_rnum=esql.executeQueryAndReturnResult(find_res);
+
+			if(find_rnum.size()==0)
+			{
+				String find_pass="SELECT C.id FROM Customer C WHERE C.id=\'"+input1+"\';";
+				//checking to see if the passenger exists if not then add the passenger to the passenger table
+				List<List<String>> find_passId=esql.executeQueryAndReturnResult(find_pass);
+				if(find_passId.size()==0)
+				{
+					System.out.print("\tCustomer Does Not Exist Please Enter Info: \n");
+					String fname,lname,gtype,dob,address,phone,zipcode;
+					System.out.print("\tCustomer First Name: ");
+					fname=in.readLine();
+					System.out.print("\tCustomer Last Name: ");
+					lname=in.readLine();
+					System.out.print("\tCustomer Gender: ");
+					gtype=in.readLine();
+					System.out.print("\tCustomer DOB: ");
+					dob=in.readLine();
+					System.out.print("\tCustomer Address: ");
+					address=in.readLine();
+					System.out.print("\tCustomer Phone Number: ");
+					phone=in.readLine();
+					System.out.print("\tCustomer Zip: ");
+					zipcode=in.readLine();
+					
+				String insert_cus="INSERT INTO Customer (id, fname, lname, gtype, dob, address, phone, zipcode)"  
+						+" VALUES(\'"+input1+"\',\'"+fname+"\', \'"+lname+"\',\'"+gtype+"\',\'"+dob+"\', \'"+address+"\', \'"+phone+"\', \'"+zipcode+"\');"; 
+				esql.executeUpdate(insert_cus);
+				String find_max="SELECT Max(R.rnum) from Reservation R;";
+				List<List<String>> find_rnumMax=esql.executeQueryAndReturnResult(find_max);
+				for(List<String> row : find_rnumMax)
+				{
+				 for(String s: row)
+				 {
+				   test = Integer.parseInt(s);
+				 }
+				}
+				test++;
+				System.out.print("\tPlease Enter New Status of W,R,C: ");
+				Scanner sc = new Scanner(System.in);
+				char Val = sc.next().charAt(0);
+				String insert_res="INSERT INTO Reservation (rnum, cid, fid, status) VALUES("+test+",\'"+input1+"\',\'"+input2+"\', \'"+Val+"\');";  
+				String query="SELECT R.status FROM Reservation R, Customer C, Flight F WHERE C.id=R.cid AND F.fnum=R.fid AND C.id=\'"+input1+"\' AND F.fnum=\'"+input2+"\';";
+				esql.executeUpdate(insert_res);
+				System.out.print("\tStatus has been updated to: \n ");
+				esql.executeQueryAndPrintResult(query);
+				}	
+				
+			}
+			else
+			{	
+				List<List<String>> current_status=esql.executeQueryAndReturnResult(find_stat);
+				System.out.print("\tCurrent status: "+current_status+"\n");
+				System.out.print("\tPlease Enter New Status of W,R,C: ");
+				Scanner sc = new Scanner(System.in);
+				char Val = sc.next().charAt(0);
+				String update_res="UPDATE Reservation SET status= \'"+Val+"\' WHERE cid= \'"+input1+"\' AND fid= \'"+input2+"\'";
+				String query="SELECT R.status FROM Reservation R, Customer C, Flight F WHERE C.id=R.cid AND F.fnum=R.fid AND C.id=\'"+input1+"\' AND F.fnum=\'"+input2+"\';";
+				esql.executeUpdate(update_res);
+				System.out.print("\tStatus has been updated to: \n ");
+				esql.executeQueryAndPrintResult(query);
+			}
+	}	
+	catch(Exception e)
+	{
+		System.err.println (e.getMessage());
+	}
 	}
 
 	public static void ListNumberOfAvailableSeats(DBproject esql) {//6
 		// For flight number and date, find the number of availalbe seats (i.e. total plane capacity minus booked seats )
-    		try{String query= "SELECT P.seats - F.num_sold AS Available_Seats FROM Plane P, FlightInfo FI, Flight F WHERE P.ID = FI.plane_id AND FI.flight_id=F.fnum AND F.fnum= ";
+    	try{
+		String query= "SELECT P.seats - F.num_sold AS Available_Seats FROM Plane P, FlightInfo FI, Flight F WHERE P.ID = FI.plane_id AND FI.flight_id=F.fnum AND F.fnum= ";
 		String query2 = " AND F.actual_departure_date= ";
 		System.out.print("\tPlease Enter Flight Number:  ");
 		String input = in.readLine();
@@ -476,46 +514,27 @@ public class DBproject{
 		query += query2;
 		System.out.print("\tTotal Remaining Seats for Flight Number  "+ input + "\n");
 		esql.executeQueryAndPrintResult(query);
-		}
-	   catch(Exception e){
+	
+	}
+	catch(Exception e){
 		System.err.println (e.getMessage());
 	   }	
+
+
+
 	}
 
 	public static void ListsTotalNumberOfRepairsPerPlane(DBproject esql) {//7
 		// Count number of repairs per planes and list them in descending order
-        try{
-            String query = "SELECT P.id, P.make, P.model, P.age, P.seats, count(*) AS totalRepairs " 
-                            + "FROM Repairs R, Plane P "
-                            + "WHERE R.plane_id = P.id "
-                            + "GROUP BY P.id "
-                            + "ORDER BY totalRepairs DESC;";
-            int rowCount = esql.executeQueryAndPrintResult(query);
-            System.out.println("\ntotal row(s): " + rowCount + "\n");
-            } 
-        catch(Exception e){
-                System.err.println(e.getMessage());
-            }
 	}
 
 	public static void ListTotalNumberOfRepairsPerYear(DBproject esql) {//8
 		// Count repairs per year and list them in ascending order
-        try{
-            String query = "SELECT EXTRACT(YEAR FROM R.repair_date) AS repair_year, count(*) AS totalRepairs "
-                         + "FROM Repairs R "
-                         + "GROUP BY repair_year "
-                         + "ORDER BY totalRepairs DESC;";
-            int rowCount = esql.executeQueryAndPrintResult(query);
-            System.out.println("\ntotal row(s): " + rowCount + "\n");
-            } 
-        catch(Exception e){
-                System.err.println(e.getMessage());
-            }
 	}
 	
 	public static void FindPassengersCountWithStatus(DBproject esql) {//9
-		// Find how many passengers there are with a status (i.e. W,C,R) and list that number.
-	    try{String query= "SELECT COUNT(R.status) AS Total FROM Customer C, Reservation R, 					Flight F WHERE  C.id=R.cid AND R.fid=F.fnum AND R.status= ";
+	// Find how many passengers there are with a status (i.e. W,C,R) and list that number.
+	    try{String query= "SELECT COUNT(R.status) AS Total FROM Customer C, Reservation R, Flight F WHERE  C.id=R.cid AND R.fid=F.fnum AND R.status= ";
 		String query2 = " AND F.fnum= ";
 		System.out.print("\tPlease Enter Passenger Status W,C,R: ");
 		String input = in.readLine();
@@ -529,6 +548,10 @@ public class DBproject{
 		}
 	   catch(Exception e){
 		System.err.println (e.getMessage());
-	   }		
+	   }
+		
+
+
+	
 	}
 }
