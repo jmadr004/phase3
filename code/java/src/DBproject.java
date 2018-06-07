@@ -756,14 +756,6 @@ public class DBproject{
 
 
 
-public static void insertPassenger(DBproject esql){
-
-
-
-
-
-
-}
 
 
 
