@@ -304,52 +304,52 @@ public class DBproject{
 
 	public static void AddPlane(DBproject esql) {//1
         try{
-		System.out.print("\tPlease Enter Aircraft Maker: ");
-		String maker = in.readLine();
-		System.out.print("\tPlease Enter Aircraft Model: ");
-		String model = in.readLine();
-		System.out.print("\tPlease Enter Aircraft Age: ");
-		String age = in.readLine();
-		System.out.print("\tPlease Enter Aircraft Seats: ");
-		String seats = in.readLine();
-		System.out.print("\n");
+		    System.out.print("\tPlease Enter Aircraft Maker: ");
+		    String maker = in.readLine();
+		    System.out.print("\tPlease Enter Aircraft Model: ");
+		    String model = in.readLine();
+		    System.out.print("\tPlease Enter Aircraft Age: ");
+		    String age = in.readLine();
+		    System.out.print("\tPlease Enter Aircraft Seats: ");
+		    String seats = in.readLine();
+		    System.out.print("\n");
 
-		String find_max="SELECT MAX(P.id) from Plane P;";
-		int test=0;
-		List<List<String>> max_count=esql.executeQueryAndReturnResult(find_max);
-		String Info="SELECT * FROM Plane P Where P.id= ";
-		for(List<String> row : max_count)
-		{
-		 for(String s: row)
-		 {
-		   //System.out.println(s + "\t");
-		   test = Integer.parseInt(s);
+		    String find_max="SELECT MAX(P.id) from Plane P;";
+		    int test=0;
+		    List<List<String>> max_count=esql.executeQueryAndReturnResult(find_max);
+		    String Info="SELECT * FROM Plane P Where P.id= ";
+		    for(List<String> row : max_count)
+		    {
+		     for(String s: row)
+		     {
+		       //System.out.println(s + "\t");
+		       test = Integer.parseInt(s);
 			
-		 }
-		 //System.out.println("\n");
-		}
-		if(test==0){
-		test++;
-		Info += "\'"+test+"\';";
-		String update_plane="INSERT INTO Plane (id, make, model, age, seats) VALUES "
-		+" ("+test+", \'"+maker+"\',\'"+model+"\',\'"+age+"\',\'"+seats+"\');";
-		System.out.print("\tPlane Information entered: "+"\n");
-		esql.executeUpdate(update_plane);
-		esql.executeQueryAndPrintResult(Info);	
-		}
-		else{
-		test++;
-		Info += "\'"+test+"\';";
-		String update_plane="INSERT INTO Plane (id, make, model, age, seats) VALUES "
-		+" ("+test+", \'"+maker+"\',\'"+model+"\',\'"+age+"\',\'"+seats+"\');";
-		System.out.print("\tPlane Information entered: "+"\n");	
-		esql.executeUpdate(update_plane);
-		esql.executeQueryAndPrintResult(Info);	 
-		}
-	
-	}catch(Exception e){
-		System.err.println (e.getMessage());
-	   }	
+		     }
+		     //System.out.println("\n");
+		    }
+		    if(test==0){
+		    test++;
+		    Info += "\'"+test+"\';";
+		    String update_plane="INSERT INTO Plane (id, make, model, age, seats) VALUES "
+		    +" ("+test+", \'"+maker+"\',\'"+model+"\',\'"+age+"\',\'"+seats+"\');";
+		    System.out.print("\tPlane Information entered: "+"\n");
+		    esql.executeUpdate(update_plane);
+		    esql.executeQueryAndPrintResult(Info);	
+		    }
+		    else{
+		    test++;
+		    Info += "\'"+test+"\';";
+		    String update_plane="INSERT INTO Plane (id, make, model, age, seats) VALUES "
+		    +" ("+test+", \'"+maker+"\',\'"+model+"\',\'"+age+"\',\'"+seats+"\');";
+		    System.out.print("\tPlane Information entered: "+"\n");	
+		    esql.executeUpdate(update_plane);
+		    esql.executeQueryAndPrintResult(Info);	 
+		    }
+        }
+        catch(Exception e){
+    		System.err.println (e.getMessage());
+        }	
 
 	}
 
@@ -460,7 +460,125 @@ public class DBproject{
                 int rowNum = esql.executeQueryAndPrintResult(fiid_query);                
             }
             else{
-                System.out.print("\nInvalid pilot id and plane id combination. Returning to main menu\n");
+                System.out.print("\nInvalid pilot id and plane id combination.\n");
+
+                String max_plane = "SELECT MAX(P.id) AS max_value FROM Plane P;";
+                String max_pilot = "SELECT MAX(P.id) AS max_value FROM Pilot P;";
+
+                // Find if either plane or pilot does not exist, ask user if they 
+                // want to add it.
+                if(plane_rs.size() == 0 && pilot_rs.size() > 0){
+                    System.out.print("\nPilot ID exists, but plane ID does not exist." 
+                                      + "\nDo you want to add a new plane?\n");
+                    Scanner sc = new Scanner(System.in);
+                    // String input = sc.nextLine();
+                    char option = sc.next().charAt(0);
+
+                    if(option == 'Y' || option == 'y'){
+                        AddPlane(esql);
+                        // Get the plane ID we just added
+                        List<List<String>> max_plane_rs = esql.executeQueryAndReturnResult(max_plane);
+                        for(List<String> row : max_plane_rs){
+                             for(String s: row){
+                                 planeID = Integer.parseInt(s);
+                             }
+                         }
+
+                         // Get the flight details and insert new records in Flight and FlightInfo tables
+                         int flightID = InsertFlight(esql);
+
+                         System.out.print("\nFlight number created: " + flightID + "\n");
+                         insert_flightInfo_query += fiid + ", "  + flightID + ", " + pilotID + ", " + planeID + ");";
+                         esql.executeUpdate(insert_flightInfo_query);
+
+                         // Print inserted record
+                         String fiid_query = "SELECT * FROM FlightInfo F WHERE F.fiid = " + fiid + ";";
+                         int rowNum = esql.executeQueryAndPrintResult(fiid_query);                                                               
+                    }
+
+                    else{
+                        System.out.print("\nReturning to main menu.\n");
+                    }            
+                }
+
+                else if(pilot_rs.size()==0 && plane_rs.size() > 0){
+                    System.out.print("\nPlane ID exists, but pilot ID does not exist." 
+                                      + "\nDo you want to add a new pilot?\n");
+                    Scanner sc = new Scanner(System.in);
+                    // String input = sc.nextLine();
+                    char option = sc.next().charAt(0);
+
+                    if(option == 'Y' || option == 'y'){
+                        AddPilot(esql);
+                        // Get the pilot ID we just added
+                        List<List<String>> max_pilot_rs = esql.executeQueryAndReturnResult(max_pilot);
+                        for(List<String> row : max_pilot_rs){
+                             for(String s: row){
+                                 pilotID = Integer.parseInt(s);
+                             }
+                         }
+
+                         // Get the flight details and insert new records in Flight and FlightInfo tables
+                         int flightID = InsertFlight(esql);
+
+                         System.out.print("\nFlight number created: " + flightID + "\n");
+                         insert_flightInfo_query += fiid + ", "  + flightID + ", " + pilotID + ", " + planeID + ");";
+                         esql.executeUpdate(insert_flightInfo_query);
+
+                         // Print inserted record
+                         String fiid_query = "SELECT * FROM FlightInfo F WHERE F.fiid = " + fiid + ";";
+                         int rowNum = esql.executeQueryAndPrintResult(fiid_query);   
+                    }
+                    
+                    else{
+                        System.out.print("\nReturning to main menu.\n");
+                    }            
+                }
+
+                else{
+                    System.out.print("\nNeither the plane ID nor the pilot ID exist." 
+                                      + "\nDo you want to add a new plane and a new pilot (y/n)?\n");
+                    Scanner sc = new Scanner(System.in);
+                    // String input = sc.nextLine();
+                    char option = sc.next().charAt(0);
+
+
+
+                    if(option == 'Y' || option == 'y'){
+                        // Add the plane and get the plane ID we just added
+                        AddPlane(esql);
+                        List<List<String>> max_plane_rs = esql.executeQueryAndReturnResult(max_plane);
+                        for(List<String> row : max_plane_rs){
+                             for(String s: row){
+                                 planeID = Integer.parseInt(s);
+                             }
+                         }
+
+                        // Add the pilot and get the pilot ID we just added
+                        AddPilot(esql);
+                        List<List<String>> max_pilot_rs = esql.executeQueryAndReturnResult(max_pilot);
+                        for(List<String> row : max_pilot_rs){
+                             for(String s: row){
+                                 pilotID = Integer.parseInt(s);
+                             }
+                         }
+
+                         // Get the flight details and insert new records in Flight and FlightInfo tables
+                         int flightID = InsertFlight(esql);
+
+                         System.out.print("\nFlight number created: " + flightID + "\n");
+                         insert_flightInfo_query += fiid + ", "  + flightID + ", " + pilotID + ", " + planeID + ");";
+                         esql.executeUpdate(insert_flightInfo_query);
+
+                         // Print inserted record
+                         String fiid_query = "SELECT * FROM FlightInfo F WHERE F.fiid = " + fiid + ";";
+                         int rowNum = esql.executeQueryAndPrintResult(fiid_query);   
+                    }
+                    
+                    else{
+                        System.out.print("\nReturning to main menu.\n");
+                    }            
+                }
             }
 	    }
         catch(Exception e){
