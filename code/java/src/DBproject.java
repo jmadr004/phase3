@@ -23,8 +23,12 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import java.util.Date; // For date and date format validation
+import java.lang.NumberFormatException; // For validating digits.
+import java.util.InputMismatchException; // For handling invalid input length strings
+import java.text.SimpleDateFormat; // For validating date
+import java.text.ParseException; // For validating date
+
 import java.util.Scanner; //for reading single char for input for the status update for bookflight
 
 /**
@@ -377,10 +381,17 @@ public class DBproject{
             // Get user input for the pilot full name and nationality
             String fname;
             String nationality;
-            System.out.println("\nEnter the pilots full name:\t");
+            System.out.println("\nEnter the pilots full name:\t");            
             fname = in.readLine();
+            // If the length of name exceeds the paramet in the model throw an exception.
+            if(fname.length() > 128){
+                throw new InputMismatchException();
+            }
             System.out.println("\nEnter the pilots nationality:\t");
             nationality = in.readLine();
+            if(nationality.length() > 24){
+                throw new InputMismatchException();
+            }
 
             
             // Insert into database. If there are no records in table insert new pilot with 
@@ -404,6 +415,10 @@ public class DBproject{
                 int newRec = esql.executeQueryAndPrintResult(print_record);
 
             }
+        }
+        catch(InputMismatchException e){
+            System.out.print("The length of your input exceeds the allowed length.\n");
+            System.err.println(e.getMessage());
         }
         catch(Exception e){
             System.err.println(e.getMessage());
@@ -581,6 +596,10 @@ public class DBproject{
                 }
             }
 	    }
+        catch(NumberFormatException e){
+            System.out.print("You must enter a number.\n");
+            System.err.println (e.getMessage());
+        }
         catch(Exception e){
 		    System.err.println (e.getMessage());
 	       }
@@ -611,6 +630,11 @@ public class DBproject{
             String fname;
             System.out.println("\nEnter the technician's full name:\t");
             fname = in.readLine();
+            // Test to make sure the name does not exceed the allowed length.
+            if(fname.length() > 128){
+                throw new InputMismatchException();
+            }
+            
             
             // Insert into database. If there are no records in table insert new technician with 
             // id = 0. Otherwise just increment the max id returned by query 
@@ -633,14 +657,17 @@ public class DBproject{
                 int newRec = esql.executeQueryAndPrintResult(print_record);
             }
         }
+        catch(InputMismatchException e){
+            System.out.print("The length of your input exceeds the allowed length.\n");
+            System.err.println(e.getMessage());
+        }
         catch(Exception e){
             System.err.println(e.getMessage());
         }
 
 	}
 
-	public static void BookFlight(DBproject esql) 
-{//5
+	public static void BookFlight(DBproject esql){//5
 		// Given a customer and a flight that he/she wants to book, add a reservation to the DB
 	try{ 
 			System.out.print("\tPlease Enter Customer Information: \n");	
@@ -816,15 +843,25 @@ public class DBproject{
         try{
             // Get user input for the flight details information
             System.out.print("\tPlease Enter Ticket Cost: ");
-		    String tCost = in.readLine();
+		    int tCost = Integer.parseInt(in.readLine());
 		    System.out.print("\tPlease Enter Number of Seats Sold: ");
-		    String numSold = in.readLine();
+		    int numSold = Integer.parseInt(in.readLine());
 		    System.out.print("\tPlease Enter Number of Stops: ");
-		    String numStops = in.readLine();
+		    int numStops = Integer.parseInt(in.readLine());
+            
+            // Get and validate the user departure date.
 		    System.out.print("\tPlease Enter Actual Departure Date: ");
 		    String actDep = in.readLine();
+            
+            Date tempDate;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.setLenient(false);
+            tempDate = sdf.parse(actDep); // Throws a parse exception if fails.
+            
 		    System.out.print("\tPlease Enter Actual Arrival Time: ");
 		    String actArv = in.readLine();
+            tempDate = sdf.parse(actArv); // Throws a parse exception if fails.
+            
 		    System.out.print("\tPlease Enter Arrival Airport: ");
 		    String arvAir = in.readLine();
 		    System.out.print("\tPlease Enter Departure Airport: ");
@@ -866,40 +903,19 @@ public class DBproject{
 		        esql.executeQueryAndPrintResult(info);	
            }
         }
+        catch(NumberFormatException e){
+            System.out.print("You must enter a number.\n");
+            System.err.println (e.getMessage());
+        }
+        catch(ParseException e){
+            System.out.print("Invalid date. Dates must be entered as yyyy-mm-dd format.\n");
+            System.err.println(e.getMessage());
+        }
         catch(Exception e){
             System.err.println (e.getMessage());
         }
        return max_value;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
